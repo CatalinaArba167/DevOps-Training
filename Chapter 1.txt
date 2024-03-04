@@ -1,0 +1,143 @@
+You need a locally running Postgres 11 (or newer) database. This can be set up using docker via
+$ docker run --name online-shop-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:11
+
+Connect to EC2 Linux instance via ssh (the last addres is public ipv4 ip address):
+$ ssh -i .\MyFirstSSHKeyPair.pem ec2-user@34.236.255.97
+
+Download Java:
+sudo yum install java-11-amazon-corretto
+
+Verify Java version:
+java -version
+
+Download Postgres:
+sudo amazon-linux-extras enable postgresql13
+sudo yum install postgresql postgresql-server
+
+postgresql-setup --initdb --unit postgresql
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+sudo systemctl status postgresql
+sudo passwd postgres
+0000
+su - postgres
+psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
+logout
+
+Change /var/lib/pgsql/data/postgresql.conf and put around line 59:
+listen_addresses = '*'
+$ sudo nano /var/lib/pgsql/data/postgresql.conf
+
+Likewise /var/lib/pgsql/data/pg_hba.conf (around line 88 for ipv6) add this line:
+host  all  all 0.0.0.0/0 md5
+and also md5 for ipv4
+$ sudo nano /var/lib/pgsql/data/pg_hba.conf
+restart the postgres
+$ sudo systemctl restart postgresql
+
+
+Download the jar in instance
+-Create a directory in the EC2 instance:
+$ cd ..
+$ cd ..
+$ ls -l
+now you have to be see the opt directory
+make a dir in the opt directory
+$ cd opt
+$ sudo mkdir online-shop
+logout:
+$ exit
+Copy the ssh in the ec2 instance:
+$ scp -i .\MyFirstSSHKeyPair.pem online-shop-v0.0.1.jar ec2-user@34.236.255.97:/opt/online-shop/
+
+
+log back in
+create an Application User and group
+$ sudo groupadd -r appmgr
+$ sudo useradd -r -s /bin/false -g appmgr jvmapps
+$ id jvmapps
+
+
+create Systemd Service
+
+Create a systemd service file to manage our application:
+$ sudo vim  /etc/systemd/system/online-shop-demo-app.servic
+Contains:
+
+[Unit]
+Description=Online Shop Demo App Service
+
+[Service]
+WorkingDirectory=/opt/online-shop
+ExecStart=/bin/java -Xms128m -Xmx256m -jar online-shop-v0.0.1.jar
+User=jvmapps
+Type=simple
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+to save the changes: 
+esc and :wq
+
+The env variables
+sudo systemctl edit online-shop-demo-app.service
+
+[Service]
+Environment="SPRING_DATASOURCE_USERNAME=postgres"
+Environment="SPRING_DATASOURCE_PASSWORD=postgres"
+Environment="SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres"
+
+
+give the user and group ownership permissions for the Project Directory
+$ sudo chown -R jvmapps:appmgr /opt/online-shop
+
+reload systemd so that it knows of the new application added
+$ sudo systemctl daemon-reload
+
+start the service
+$ sudo systemctl start online-shop-demo-app.service
+
+check the status, use:
+$ systemctl status online-shop-demo-app
+
+in case it fails see the errors:
+sudo journalctl -u online-shop-demo-app.service --since "5 minutes ago"
+
+You can also enable the service to start on server boot:
+$ sudo systemctl enable online-shop-demo-app
+
+restart the app
+sudo systemctl restart online-shop-demo-app
+
+
+then go to aws management console and take the ipv4 public address and open a browser and the app should be available
+http://34.236.255.97:8080
+
+The order I created:
+http://54.86.191.56:8080/orders/e9735cee-ba52-4f72-a8e5-88ec9d8fbc2c
+
+Create the new ip addres, ina ami an 
+for the error with the host:
+$ ssh-keygen -R 54.86.191.56
+
+The second order i created
+http://107.20.162.42:8080/orders/6b65f0bd-9069-4d3e-a526-8af8c0659cbc
+http://107.20.162.42:8080/orders/6b65f0bd-9069-4d3e-a526-8af8c0659cbc
+
+Env variables after redis configuration
+
+[Service]
+#Database Configuration
+Environment="SPRING_DATASOURCE_USERNAME=postgres"
+Environment="SPRING_DATASOURCE_PASSWORD=postgres"
+Environment="SPRING_DATASOURCE_URL=jdbc:postgresql://my-first-rds.cpcaaooq2hbg.us-east-1.rds.amazonaws.com:5432/postgres"
+
+# Redis Configuration
+Environment="SPRING_REDIS_HOST=myfirstradis.7oixk7.ng.0001.use1.cache.amazonaws.com"
+Environment="SPRING_REDIS_PORT=6379"
+Environment="SPRING_SESSION_STORETYPE=redis"
+Environment="SPRING_SESSION_REDIS_CONFIGUREACTION=none"
+
+
