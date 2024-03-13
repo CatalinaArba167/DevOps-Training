@@ -1,0 +1,11 @@
+mkdir learn-terraform-docker-container
+
+cd learn-terraform-docker-container
+
+terraform init
+
+terraform apply
+
+
+Import ssh key pair
+terraform import aws_key_pair.terraform-ssh-key MyTerraformKey
