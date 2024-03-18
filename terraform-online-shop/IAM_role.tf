@@ -20,9 +20,9 @@ resource "aws_iam_policy" "ECR_push_policy" {
 })
 }
 
-
 resource "aws_iam_role" "ECR_push_role" {
-  name               = "ECR_push_role"
+  name = "ECR_push_role"
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -30,14 +30,22 @@ resource "aws_iam_role" "ECR_push_role" {
         Action = "sts:AssumeRole",
         Effect = "Allow",
         Principal = {
-          Service = "ec2.amazonaws.com"
+          Federated = "arn:aws:iam::767397826387:oidc-provider/token.actions.githubusercontent.com"
         },
+        Condition = {
+          StringLike = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+            "token.actions.githubusercontent.com:sub" = "repo:CatalinaArba167/DevOps-Training:*"
+          }
+        }
       },
     ]
   })
 }
 
+
 resource "aws_iam_role_policy_attachment" "ECR_push_attach" {
   role       = aws_iam_role.ECR_push_role.name
   policy_arn = aws_iam_policy.ECR_push_policy.arn
 }
+
