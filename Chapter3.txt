@@ -1,0 +1,6 @@
+type nul > Dockerfile
+docker build -t cata/irock:1.0-SNAPSHOT .
+docker run -d -p 8080:8080 cata/irock:1.0-SNAPSHOT
+docker run -p 8080:8080 <that_id>
+
+docker compose up
