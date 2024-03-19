@@ -27,7 +27,7 @@ resource "aws_iam_role" "ECR_push_role" {
     Version = "2012-10-17",
     Statement = [
       {
-        Action = "sts:AssumeRole",
+        Action = "sts:AssumeRoleWithWebIdentity",
         Effect = "Allow",
         Principal = {
           Federated = "arn:aws:iam::767397826387:oidc-provider/token.actions.githubusercontent.com"
@@ -35,7 +35,7 @@ resource "aws_iam_role" "ECR_push_role" {
         Condition = {
           StringLike = {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-            "token.actions.githubusercontent.com:sub" = "repo:CatalinaArba167/DevOps-Training:*"
+            "token.actions.githubusercontent.com:sub" = "repo:CatalinaArba167/aws-devops-demo-app:*"
           }
         }
       },
