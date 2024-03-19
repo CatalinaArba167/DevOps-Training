@@ -2,9 +2,11 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "chapter-300" ]
+    branches:
+    -  chapter-300
   pull_request:
-    branches: [ "chapter-300" ]
+    branches: 
+    - chapter-300 
 
 jobs:
   build:
