@@ -26,12 +26,12 @@ variable "application_version" {
 
 variable "my_ip" {
   description = "The IP of my computer"
-  default     = "147.161.131.112/32"
+  default     = "147.161.131.86/32"
 }
 
 variable "docker_image_tag" {
   description = "Docker image tag to pull from ECR and run on EC2 instances"
-  default = "value"
+  default     = "74f2062a6d507654e6466217bb5437675ed4240f"
   type        = string
 }
 
