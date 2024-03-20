@@ -29,6 +29,12 @@ variable "my_ip" {
   default     = "147.161.131.112/32"
 }
 
+variable "docker_image_tag" {
+  description = "Docker image tag to pull from ECR and run on EC2 instances"
+  default = "value"
+  type        = string
+}
+
 
 locals {
   rds_endpoint  = "jdbc:postgresql://${aws_db_instance.OnlineShopDatabase.endpoint}/postgres"

@@ -17,3 +17,7 @@ output "cache_port" {
 output "application_base_url" {
   value = "http://${aws_lb.terraform_load_balancer.dns_name}"
 }
+
+output "ecr_repo_url" {
+  value = aws_ecr_repository.terraform_ecr_repo.repository_url
+}

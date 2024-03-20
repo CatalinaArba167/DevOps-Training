@@ -14,7 +14,10 @@ resource "aws_iam_policy" "ECR_push_policy" {
                 "ecr:BatchCheckLayerAvailability",
                 "ecr:PutImage"
             ],
-            "Resource": "*"
+            "Resource": [
+                "arn:aws:ecr:us-east-1:767397826387:repository/terraform_ecr_repo"
+            ]
+
         }
     ]
 })
