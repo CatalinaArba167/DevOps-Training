@@ -6,6 +6,7 @@ terraform init
 
 terraform apply
 
+terraform apply -auto-approve
 
 Import ssh key pair
 terraform import aws_key_pair.terraform-ssh-key MyTerraformKey

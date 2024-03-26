@@ -43,6 +43,7 @@ resource "aws_lb_target_group" "terraform_target_group" {
   port     = 8080
   protocol = "HTTP"
   vpc_id   = aws_vpc.terraform_vpc.id
+  target_type = "instance"
 
   health_check {
     enabled             = true
@@ -53,13 +54,40 @@ resource "aws_lb_target_group" "terraform_target_group" {
   }
 }
 
-resource "aws_lb_listener" "terraform_listener" {
+# resource "aws_lb_listener" "terraform_listener" {
+#   load_balancer_arn = aws_lb.terraform_load_balancer.arn
+#   port              = 80
+#   protocol          = "HTTP"
+
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.terraform_target_group.arn
+#   }
+# }
+
+
+resource "aws_lb_target_group" "terraform_target_group_for_ecs" {
+  name     = "TerraformTargetGroupForECS"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.terraform_vpc.id
+  target_type = "ip"
+  health_check {
+    enabled             = true
+    interval            = 30
+    path                = "/health"
+    protocol            = "HTTP"
+    matcher             = "200"
+  }
+}
+
+resource "aws_lb_listener" "terraform_listener_for_ecs" {
   load_balancer_arn = aws_lb.terraform_load_balancer.arn
   port              = 80
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.terraform_target_group.arn
+    target_group_arn = aws_lb_target_group.terraform_target_group_for_ecs.arn
   }
 }
